@@ -25,7 +25,7 @@ except Exception:
     client = None
 
 # Model configuration
-CONVERSATION_MODEL = "llama-3.1-8b-instant"
+CONVERSATION_MODEL = "llama-3.3-70b-versatile"
 REPORT_MODEL = "llama-3.3-70b-versatile"
 WHISPER_MODEL = "whisper-large-v3"
 
@@ -394,7 +394,7 @@ Topic: {topic}
 Level: {difficulty}"""
 
     # Sliding window: only send last 8 messages
-    context = conversation[-8:]
+    context = conversation[-10:]
     
     messages = [{"role": "system", "content": system_prompt}]
     for msg in context:
