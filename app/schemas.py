@@ -251,6 +251,8 @@ class VoiceRespondRequest(BaseModel):
     topic: str = "Daily Life"
     difficulty: str = "intermediate"
     conversation: List[dict] = []
+    voice_name: Optional[str] = "Aria"
+    voice_gender: Optional[str] = "Female"
 
 
 class VoiceRespondResponse(BaseModel):

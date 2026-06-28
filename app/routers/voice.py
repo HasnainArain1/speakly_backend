@@ -122,7 +122,9 @@ async def voice_respond(
             ai_reply = await get_conversation_response(
                 conversation=conversation,
                 topic=payload.topic,
-                difficulty=payload.difficulty
+                difficulty=payload.difficulty,
+                voice_name=payload.voice_name,
+                voice_gender=payload.voice_gender
             )
         conversation.append({"role": "ai", "content": ai_reply})
 

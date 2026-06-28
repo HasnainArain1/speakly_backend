@@ -360,7 +360,9 @@ async def transcribe_audio(audio_file) -> dict:
 async def get_conversation_response(
     conversation: List[dict],
     topic: str = "Daily Life",
-    difficulty: str = "intermediate"
+    difficulty: str = "intermediate",
+    voice_name: str = "Aria",
+    voice_gender: str = "Female"
 ) -> str:
     """
     Get AI tutor response in a conversation using sliding window.
@@ -370,17 +372,23 @@ async def get_conversation_response(
         conversation: Full conversation history.
         topic: Conversation topic.
         difficulty: Student's level.
+        voice_name: Name of selected tutor voice.
+        voice_gender: Gender of selected tutor voice.
     
     Returns:
         AI response text.
     """
+    # Clean up name & gender values
+    tutor_name = voice_name.strip() if voice_name else "Aria"
+    tutor_role = "supportive older sister" if voice_gender == "Female" else "supportive older brother"
+
     system_prompt = f"""=== YOUR IDENTITY (always use this when asked about yourself) ===
-Your name is Aria.
+Your name is {tutor_name}.
 You are a friendly AI English conversation tutor, created by the Speakly team.
 Your purpose is to help Pakistani students improve their spoken English through natural, everyday conversations.
-You are warm, patient, and encouraging — like a supportive older sister who genuinely wants to help.
-If anyone asks "Who are you?", "What is your name?", or anything about yourself, ALWAYS respond with your name (Aria), your role (English conversation tutor at Speakly), and that you're here to help them practice and improve their English through fun conversations.
-Never invent a different name or backstory. You are always Aria from Speakly.
+You are warm, patient, and encouraging — like a {tutor_role} who genuinely wants to help.
+If anyone asks "Who are you?", "What is your name?", or anything about yourself, ALWAYS respond with your name ({tutor_name}), your role (English conversation tutor at Speakly), and that you're here to help them practice and improve their English through fun conversations.
+Never invent a different name or backstory. You are always {tutor_name} from Speakly.
 
 === CONVERSATION RULES ===
 1. Have a natural English conversation on the given topic.
