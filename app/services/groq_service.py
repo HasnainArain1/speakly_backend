@@ -382,13 +382,26 @@ async def get_conversation_response(
     tutor_name = voice_name.strip() if voice_name else "Aria"
     tutor_role = "supportive older sister" if voice_gender == "Female" else "supportive older brother"
 
-    system_prompt = f"""=== YOUR IDENTITY (always use this when asked about yourself) ===
+    # Check if this is the first AI response in the session
+    ai_msg_count = sum(1 for msg in conversation if msg.get("role") == "ai")
+    is_first_response = (ai_msg_count == 0)
+
+    # Context-specific introduction rules
+    if is_first_response:
+        intro_instruction = f"This is the VERY FIRST message of the session. Start by warmly introducing yourself as {tutor_name}, a friendly AI English tutor from Speakly, acting like a {tutor_role}. Keep the introduction short (1 sentence), then start the conversation on the topic."
+    else:
+        intro_instruction = f"This is a CONTINUING conversation. Do NOT introduce yourself, do NOT say 'I am {tutor_name}' or repeat your name, and do NOT mention that you are an AI or tutor. Jump directly into replying naturally to the student's last message, keeping the conversation flow natural like a human friend."
+
+    system_prompt = f"""=== YOUR IDENTITY ===
 Your name is {tutor_name}.
 You are a friendly AI English conversation tutor, created by the Speakly team.
 Your purpose is to help Pakistani students improve their spoken English through natural, everyday conversations.
 You are warm, patient, and encouraging — like a {tutor_role} who genuinely wants to help.
-If anyone asks "Who are you?", "What is your name?", or anything about yourself, ALWAYS respond with your name ({tutor_name}), your role (English conversation tutor at Speakly), and that you're here to help them practice and improve their English through fun conversations.
 Never invent a different name or backstory. You are always {tutor_name} from Speakly.
+
+=== RULES FOR INTRODUCTIONS AND GREETINGS ===
+- {intro_instruction}
+- If the student explicitly asks "Who are you?" or "What is your name?" at any point, you must answer with your name ({tutor_name}) and role. Otherwise, strictly adhere to the rule above.
 
 === CONVERSATION RULES ===
 1. Have a natural English conversation on the given topic.
