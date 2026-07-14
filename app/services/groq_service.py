@@ -9,6 +9,7 @@ Groq API service for AI-powered features:
 
 import json
 import os
+import re
 import logging
 from typing import List, Optional
 from groq import Groq
@@ -25,9 +26,20 @@ except Exception:
     client = None
 
 # Model configuration
-CONVERSATION_MODEL = "llama-3.3-70b-versatile"
-REPORT_MODEL = "llama-3.3-70b-versatile"
+CONVERSATION_MODEL = "qwen/qwen3.6-27b"
+REPORT_MODEL = "qwen/qwen3.6-27b"
 WHISPER_MODEL = "whisper-large-v3"
+
+
+def strip_think_tags(text: str) -> str:
+    """Remove <think>...</think> reasoning blocks from Qwen model output."""
+    if not text:
+        return text
+    # Strip complete <think>...</think> blocks
+    cleaned = re.sub(r"<think>[\s\S]*?</think>", "", text, flags=re.DOTALL).strip()
+    # Strip incomplete <think> blocks (model ran out of tokens before closing)
+    cleaned = re.sub(r"<think>[\s\S]*$", "", cleaned, flags=re.DOTALL).strip()
+    return cleaned if cleaned else text
 
 FALLBACK_MODAL_EXERCISES = {
     "can": [
@@ -428,8 +440,9 @@ Level: {difficulty}"""
             messages=messages,
             temperature=0.7,
             max_tokens=256,
+            reasoning_effort="none",
         )
-        return response.choices[0].message.content
+        return strip_think_tags(response.choices[0].message.content)
     except Exception as e:
         raise Exception(f"Conversation response failed: {str(e)}")
 
@@ -496,9 +509,10 @@ CRITICAL RULES:
             ],
             temperature=0.3,
             max_tokens=1024,
+            reasoning_effort="none",
         )
         
-        content = response.choices[0].message.content.strip()
+        content = strip_think_tags(response.choices[0].message.content)
         # Extract JSON from response (handle markdown code blocks)
         if content.startswith("```"):
             content = content.split("```")[1]
@@ -578,9 +592,10 @@ Note: "reference_sentences" can be an empty list [] if the question does not ref
             ],
             temperature=0.7,
             max_tokens=2048,
+            reasoning_effort="none",
         )
         
-        content = response.choices[0].message.content.strip()
+        content = strip_think_tags(response.choices[0].message.content)
         if content.startswith("```"):
             content = content.split("```")[1]
             if content.startswith("json"):
@@ -661,9 +676,10 @@ Return ONLY a JSON array of dicts in this exact format:
             ],
             temperature=0.3,
             max_tokens=1024,
+            reasoning_effort="none",
         )
         
-        content = response.choices[0].message.content.strip()
+        content = strip_think_tags(response.choices[0].message.content)
         if content.startswith("```"):
             content = content.split("```")[1]
             if content.startswith("json"):
@@ -776,8 +792,9 @@ Return ONLY a JSON array with no extra text:
                 ],
                 temperature=0.4,
                 max_tokens=1024,
+                reasoning_effort="none",
             )
-            content = response.choices[0].message.content.strip()
+            content = strip_think_tags(response.choices[0].message.content)
             if content.startswith("```"):
                 content = content.split("```")[1]
                 if content.startswith("json"):
@@ -842,8 +859,9 @@ Return ONLY a JSON array with no extra text:
                 ],
                 temperature=0.4,
                 max_tokens=1024,
+                reasoning_effort="none",
             )
-            content = response.choices[0].message.content.strip()
+            content = strip_think_tags(response.choices[0].message.content)
             if content.startswith("```"):
                 content = content.split("```")[1]
                 if content.startswith("json"):
@@ -895,9 +913,10 @@ async def generate_ai_assignment(topic: str) -> dict:
             ],
             temperature=0.7,
             max_tokens=1024,
+            reasoning_effort="none",
         )
         
-        content = response.choices[0].message.content.strip()
+        content = strip_think_tags(response.choices[0].message.content)
         if content.startswith("```"):
             content = content.split("```")[1]
             if content.startswith("json"):
@@ -973,8 +992,9 @@ Return ONLY this exact JSON structure, no extra text:
                 ],
                 temperature=0.4,
                 max_tokens=1500,
+                reasoning_effort="none",
             )
-            content = response.choices[0].message.content.strip()
+            content = strip_think_tags(response.choices[0].message.content)
             if content.startswith("```"):
                 content = content.split("```")[1]
                 if content.startswith("json"):
