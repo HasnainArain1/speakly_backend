@@ -111,6 +111,21 @@ async def create_assignment(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@router.post("/assignments/generate-preview")
+async def generate_preview(
+    request: AssignmentCreate,
+    current_user: User = Depends(require_teacher)
+):
+    """Generate assignment title and content preview with AI without saving it yet."""
+    if not request.topic:
+        raise HTTPException(status_code=400, detail="Topic is required")
+    try:
+        ai_data = await generate_ai_assignment(request.topic)
+        return ai_data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to generate preview: {str(e)}")
+
+
 @router.get("/assignments", response_model=list[AssignmentResponse])
 def get_assignments(
     current_user: User = Depends(require_teacher),

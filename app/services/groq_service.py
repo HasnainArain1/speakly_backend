@@ -896,7 +896,15 @@ async def generate_ai_assignment(topic: str) -> dict:
     Structure the assignment content in clean markdown format, including:
     1. **Learning Objective**: A brief sentence on what students will practice.
     2. **Concept Guide**: A very short explanation of the rules with 2 clear examples.
-    3. **Practice Tasks**: 5 fill-in-the-blank or rewriting sentences/questions that students can practice.
+    3. **Practice Tasks**: 5 fill-in-the-blank sentences or questions that students can practice.
+    
+    CRITICAL RULES FOR THE 5 PRACTICE TASKS:
+    - The blanks MUST be empty and represented by a long underline (e.g., `__________`).
+    - Provide only the base/infinitive form of the verb in parentheses next to the blank (e.g., `(rise)`, `(play)`, `(not / like)`).
+    - NEVER include the correct conjugated answer inside the sentence or inside the parentheses.
+    - NEVER pre-fill the blank with the answer. The student must conjugate it themselves.
+    - Example of a correct sentence: "The sun __________ (rise) in the east."
+    - Example of an incorrect sentence: "The sun __________ (rises) in the east." or "The sun rises __________ (rise) in the east." (Do NOT do this!)
     
     Return the response as a JSON object with two fields:
     - "title": A professional title for the assignment (e.g. "Mastering Present Perfect: [Subtopic]")
